@@ -1,0 +1,22 @@
+body {min-width: 180px;}
+
+button.emoteli {
+  background: none;
+  border: none;
+  display: block;
+  margin: 10px 0;
+  width: 180px;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+
+button.emoteli:hover {
+  background: #efefef;
+}
+
+button.emoteli img {
+  width: 32px;
+  vertical-align: middle;
+  margin-right: 10px;
+}

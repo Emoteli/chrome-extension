@@ -1,0 +1,17 @@
+{
+  "manifest_version" : 2,
+
+  "name" : "Emoteli",
+  "description" : "Emote on pages you visit and see how you're friends emoted it. Welcome to social web browsing!",
+  "version" : "0.0.1",
+
+  "browser_action" : {
+    "default_icon" : "assets/img/emoteli/new.png",
+    "default_popup" : "public/popup/emote.html",
+    "default_title" : "Emote this page!"
+  },
+
+  "permissions" : [
+    "activeTab"
+  ]
+}
