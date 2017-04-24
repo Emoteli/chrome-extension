@@ -1,0 +1,21 @@
+{
+  "name": "chrome-extension",
+  "homepage": "https://github.com/Emoteli/chrome-extension",
+  "authors": [
+    "OzRamos <oz@ozramos.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "firebase": "^3.8.0"
+  }
+}

@@ -12,7 +12,10 @@
   },
 
   "background" : {
-    "scripts" :["assets/js/background.js"]
+    "scripts" :[
+      "bower_components/firebase/firebase.js",
+      "assets/js/background.js"
+    ]
   },
 
   "permissions" : [
