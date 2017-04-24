@@ -1,4 +1,9 @@
-var loadedTabs = {};
+var loadedTabs = {}
+    emoteIds = {
+      entertaining : 1,
+      "thought-provoking" : 2,
+      bad : 3
+    };
 
 /**
  * Setup Firebase
@@ -78,6 +83,7 @@ function emote (data) {
       icon : data.emote
     }
     updateEmoteli(data.tab.id);
+    saveEmoteli(data);
   } else {
     logout();
   }
@@ -95,6 +101,24 @@ function updateEmoteli (tabId) {
     }
     chrome.browserAction.setIcon({path : '/assets/img/emoteli/' + loadedTabs[tabId].icon + '.png'});
   }
+}
+
+/**
+ * Saves the emoteli to the database
+ *
+ * @param {Object} data
+ */
+function saveEmoteli (data) {
+  var user = getUser(),
+      updates = {};
+
+  updates['/user/' + user.uid + '/url/' + encodeRef(data.tab.url)] = emoteIds[data.emote];
+  updates['/url/' + encodeRef(data.tab.url) + '/emote/' + user.uid] = emoteIds[data.emote];
+
+  firebase.database().ref().update(updates)
+    .catch(function (err) {
+      alert(err.message);
+    });
 }
 
 /**
@@ -132,4 +156,24 @@ function logout () {
  */
 function getUser () {
   return firebase.auth().currentUser;
+}
+
+/**
+ * Encodes refs for firebase
+ *
+ * @param  {String} ref The ref to encode
+ * @return {String}     Encoded ref
+ */
+function encodeRef (ref) {
+  return ref.replace(/\./g, '||dot||').replace(/\$/g, '||dollar||').replace(/\#/g, '||pound||').replace(/\[/g, '||open||').replace(/\]/g, '||close||').replace(/\//g, '||slash||');
+}
+
+/**
+ * Decodes refs for firebase
+ *
+ * @param  {String} ref The ref to decode
+ * @return {String}     Decoded ref
+ */
+function decodeRef (ref) {
+  return ref.replace('||dot||', '.').replace('||dollar||', '$').replace('||pound||', '#').replace('||open||', '[').replace('||close||', ']').replace('||slash||', '/');
 }

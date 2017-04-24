@@ -5,8 +5,8 @@
       "$userId" : {
         "url" : {
           "$url" : {
-            ".read" : "auth == $userId",
-            ".write" : "auth === $userId",
+            ".read" : "auth.uid === $userId",
+            ".write" : "auth.uid === $userId",
             ".validate" : "newData.exists() || (newData.isNumber() && newData.val() > 0 && newData.val() < 3)"
           }
         }
@@ -15,10 +15,10 @@
 
     "url" : {
       "$url" : {
-        "emotes" : {
+        "emote" : {
           ".read" : true,
           "$userId" : {
-            ".write" : "auth === $userId",
+            ".write" : "auth.uid === $userId",
             ".validate" : "newData.exists() || (newData.isNumber() && newData.val() > 0 && newData.val() < 3)"
           }
         }
