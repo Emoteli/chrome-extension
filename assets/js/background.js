@@ -1,8 +1,12 @@
 var loadedTabs = {}
     emoteIds = {
       entertaining : 1,
-      "thought-provoking" : 2,
-      bad : 3
+      'thought-provoking' : 2,
+      bad : 3,
+
+      1 : 'entertaining',
+      2 : 'thought-provoking',
+      3 : 'bad'
     };
 
 /**
@@ -34,17 +38,19 @@ firebase.auth().onAuthStateChanged(onAuthChange, onAuthError);
  */
 function onTabUpdated (tabId, changeInfo, tab) {
   if (changeInfo.status === 'complete' && tab.active) {
-    updateEmoteli(tabId);
+    watchEmoteli(tab);
   }
 }
 
 /**
  * Called when the active tab is changed
  *
- * @param {Object} tabInfo The active tab info object
+ * @param {Object} activeInfo The active tab info object
  */
-function onActivated (tabInfo) {
-  updateEmoteli(tabInfo.tabId);
+function onActivated (activeInfo) {
+  chrome.tabs.get(activeInfo.tabId, function (tab) {
+    watchEmoteli(tab);
+  });
 }
 
 /**
@@ -64,7 +70,7 @@ function authWithFacebook () {
   firebase.auth().signInWithPopup(new firebase.auth.FacebookAuthProvider())
     .then(function () {
       chrome.tabs.query({active : true, currentWindow : false}, function (tabs) {
-        updateEmoteli(tabs[0].id);
+        watchEmoteli(tabs[0]);
       });
     })
     .catch(function (err) {
@@ -82,7 +88,7 @@ function emote (data) {
     loadedTabs[data.tab.id] = {
       icon : data.emote
     }
-    updateEmoteli(data.tab.id);
+
     saveEmoteli(data);
   } else {
     logout();
@@ -99,14 +105,15 @@ function updateEmoteli (tabId) {
         icon : 'new'
       };
     }
-    chrome.browserAction.setIcon({path : '/assets/img/emoteli/' + loadedTabs[tabId].icon + '.png'});
+
+    chrome.browserAction.setIcon({path : '/assets/img/emoteli/' + (loadedTabs[tabId].icon || 'new') + '.png'});
   }
 }
 
 /**
  * Saves the emoteli to the database
  *
- * @param {Object} data
+ * @param {Object} data The emoteli payload
  */
 function saveEmoteli (data) {
   var user = getUser(),
@@ -119,6 +126,41 @@ function saveEmoteli (data) {
     .catch(function (err) {
       alert(err.message);
     });
+}
+
+/**
+ * Watches the page for emoteli changes
+ *
+ * @param  {Object} tab The tab being watched
+ */
+function watchEmoteli (tab) {
+  var ref,
+      user = getUser();
+
+  if (user) {
+    ref = '/user/' + user.uid + '/url/' + encodeRef(tab.url);
+    if (loadedTabs[tab.id] && loadedTabs[tab.id].ref) {
+      loadedTabs[tab.id].ref.off('value');
+      loadedTabs[tab.id].ref = null;
+    }
+
+    if (!loadedTabs[tab.id]) {
+      loadedTabs[tab.id] = {};
+    }
+
+    loadedTabs[tab.id].ref = firebase.database().ref(ref);
+    loadedTabs[tab.id].ref.on('value', function (snap) {
+      if (snap) {
+        loadedTabs[tab.id].icon = emoteIds[snap.val()];
+
+        chrome.tabs.query({active : true, currentWindow : true}, function (newTab) {
+          if (newTab[0].id === tab.id) {
+            updateEmoteli(tab.id);
+          }
+        });
+      }
+    });
+  }
 }
 
 /**
