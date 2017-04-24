@@ -7,11 +7,15 @@
 
   "browser_action" : {
     "default_icon" : "assets/img/emoteli/new.png",
-    "default_popup" : "public/popup/emote.html",
+    "default_popup" : "assets/html/popup.html",
     "default_title" : "Emote this page!"
   },
 
+  "background" : {
+    "scripts" :["assets/js/background.js"]
+  },
+
   "permissions" : [
-    "activeTab"
+    "tabs"
   ]
 }
