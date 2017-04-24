@@ -1,0 +1,28 @@
+{
+  "rules": {
+
+    "user" : {
+      "$userId" : {
+        "url" : {
+          "$url" : {
+            ".read" : "auth == $userId",
+            ".write" : "auth === $userId",
+            ".validate" : "newData.exists() || (newData.isNumber() && newData.val() > 0 && newData.val() < 3)"
+          }
+        }
+      }
+    },
+
+    "url" : {
+      "$url" : {
+        "emotes" : {
+          ".read" : true,
+          "$userId" : {
+            ".write" : "auth === $userId",
+            ".validate" : "newData.exists() || (newData.isNumber() && newData.val() > 0 && newData.val() < 3)"
+          }
+        }
+      }
+    }
+  }
+}
