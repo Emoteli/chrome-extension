@@ -17,7 +17,7 @@ firebase.initializeApp({
  */
 chrome.tabs.onUpdated.addListener(onTabUpdated);
 chrome.tabs.onActivated.addListener(onActivated);
-chrome.extension.onMessage.addListener(emote);
+chrome.extension.onMessage.addListener(onMessage);
 firebase.auth().onAuthStateChanged(onAuthChange, onAuthError);
 
 /**
@@ -43,15 +43,44 @@ function onActivated (tabInfo) {
 }
 
 /**
+ * Called when we receive a message
+ */
+function onMessage (message) {
+  switch (message.action) {
+    case 'emote' : emote (message); break;
+    case 'auth' : authWithFacebook(); break;
+  }
+}
+
+/**
+ * Auth with Facebook
+ */
+function authWithFacebook () {
+  firebase.auth().signInWithPopup(new firebase.auth.FacebookAuthProvider())
+    .then(function () {
+      chrome.tabs.query({active : true, currentWindow : false}, function (tabs) {
+        updateEmoteli(tabs[0].id);
+      });
+    })
+    .catch(function (err) {
+      alert(err.message);
+    });
+}
+
+/**
  * Called when a user emotes
  *
  * @param {Object} data The emote object
  */
 function emote (data) {
-  loadedTabs[data.tab.id] = {
-    icon : data.emote
+  if (data.emote !== 'logout') {
+    loadedTabs[data.tab.id] = {
+      icon : data.emote
+    }
+    updateEmoteli(data.tab.id);
+  } else {
+    logout();
   }
-  updateEmoteli(data.tab.id);
 }
 
 /**
@@ -82,10 +111,18 @@ function onAuthError () {
  */
 function onAuthChange (user) {
   if (user) {
-
+    chrome.browserAction.setPopup({popup : '/assets/html/popup.html'});
   } else {
+    chrome.browserAction.setPopup({popup : '/assets/html/auth.html'});
     chrome.browserAction.setIcon({path : '/assets/img/emoteli/sleeping.png'});
   }
+}
+
+/**
+ * Logs the user out
+ */
+function logout () {
+  firebase.auth().signOut();
 }
 
 /**

@@ -9,8 +9,8 @@ for (i = 0; i < buttons.length; i++) {
 /**
  * Gets the current tabs ID
  */
-chrome.tabs.query({active : true}, function (tab) {
-  currentTab = tab[0];
+chrome.tabs.query({active : true, currentWindow : true}, function (tabs) {
+  currentTab = tabs[0];
 });
 
 /**
@@ -18,6 +18,7 @@ chrome.tabs.query({active : true}, function (tab) {
  */
 function emote () {
   chrome.extension.sendMessage({
+    action : 'emote',
     emote : this.getAttribute('data-emote'),
     tab : currentTab
   });
